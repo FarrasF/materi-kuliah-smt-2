@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1,
+    "nomor_meja": "A1",
+    "items": [
+      {
+        "nama": "Nasi Goreng",
+        "harga": 35000,
+        "qty": 1
+      }
+    ],
+    "status": "selesai",
+    "created_at": "11:04:58",
+    "waktu_selesai": "11:05:07",
+    "catatan": "p"
+  }
+]
