@@ -1,169 +1,137 @@
 # 🍽️ Restaurant Order Queue System
 
-Sistem manajemen pesanan restoran berbasis Python Streamlit. Kelola pesanan dengan mudah dari intake hingga delivery!
+Sistem antrian pesanan restoran sederhana berbasis **FIFO (First In, First Out)** menggunakan Python + Streamlit.
 
-## ✨ Fitur
-
-- ✅ **Tambah Pesanan** - Input pesanan dengan nomor meja & menu
-- ✅ **Tracking Status** - Pending → Sedang Dimasak → Siap → Selesai
-- ✅ **Menu Management** - 8 menu dengan harga yang dapat dikustomisasi
-- ✅ **Real-time Stats** - Tampilan statistik pesanan aktif, siap, & pendapatan
-- ✅ **Riwayat Lengkap** - Lihat semua pesanan dengan filter status
-- ✅ **Catatan Khusus** - Tambah instruksi khusus per pesanan (misal: tidak pedas)
-- ✅ **Auto Calculation** - Hitung otomatis total harga per item & pesanan
-- ✅ **Persistent Storage** - Data disimpan ke JSON, tidak hilang saat refresh
-- ✅ **Responsive UI** - Interface yang user-friendly & mudah dipahami
-
-## 🚀 Quick Start
-
-### 1. Install Dependencies
-```bash
-pip install streamlit
-```
-
-### 2. Jalankan Aplikasi
-```bash
-streamlit run app.py
-```
-
-App akan otomatis buka di `http://localhost:8501`
+---
 
 ## 📁 Struktur File
 
 ```
-├── app.py              # Frontend Streamlit (UI/UX)
-├── backend.py          # Backend OrderQueue (Logic)
-├── orders.json         # Database pesanan (auto-created)
-└── README.md          # File ini
+├── app.py          # Frontend (Streamlit UI)
+├── backend.py      # Logic antrian & data
+├── orders.json     # Database pesanan (auto-generated)
+└── README.md
 ```
 
-## 🎯 Cara Penggunaan
+---
 
-### Menambah Pesanan Baru
-1. Di sidebar kiri, masukkan **Nomor Meja** (A1, B3, dll)
-2. Pilih menu dengan mengganti quantity (0 = tidak pesan)
-3. (Optional) Tambah catatan khusus
-4. Klik **✅ Tambah Pesanan**
+## ⚙️ Instalasi
 
-### Update Status Pesanan
-1. **Pending → Masak**: Klik tombol **🔥 Masak** untuk mulai masak
-2. **Masak → Siap**: Klik **✅ Siap** ketika makanan sudah jadi
-3. **Siap → Selesai**: Klik **🛎️ Antar** ketika diantar ke meja
+### 1. Clone / Download project
+```bash
+git clone <repo-url>
+cd restaurant-order-queue
+```
 
-### Melihat Riwayat
-- Tab **Semua Pesanan** untuk melihat semua dengan filter status
-- Expand detail pesanan untuk lihat info lengkap
+### 2. Install dependencies
+```bash
+pip install streamlit
+```
 
-## 📊 Menu Default (Bisa Diubah di backend.py)
+### 3. Jalankan aplikasi
+```bash
+streamlit run app.py
+```
+
+Buka browser di `http://localhost:8501`
+
+---
+
+## 🔄 Alur Pesanan
+
+```
+ENQUEUE                PROSES               DEQUEUE
+─────────              ──────               ───────
+Pelanggan     →   🔴 Antri   →   🔥 Diproses   →   ✅ Selesai (otomatis buang)
+pesan
+```
+
+1. **Enqueue** — Kasir input nomor meja + pilih menu → klik **Tambah ke Antrian**
+2. **Diproses** — Dapur klik tombol 🔥 **Proses** saat mulai masak
+3. **Dequeue** — Klik ✅ **Selesai** → order otomatis dibuang dari antrian
+
+---
+
+## 📋 Menu yang Tersedia
 
 | Menu | Harga |
 |------|-------|
-| Nasi Goreng | Rp35.000 |
-| Mie Goreng | Rp30.000 |
-| Soto Ayam | Rp25.000 |
-| Gado-Gado | Rp20.000 |
-| Lumpia | Rp15.000 |
-| Tahu Goreng | Rp12.000 |
-| Es Teh Manis | Rp8.000 |
-| Kopi | Rp10.000 |
+| Nasi Goreng | Rp 35.000 |
+| Mie Goreng | Rp 30.000 |
+| Soto Ayam | Rp 25.000 |
+| Gado-Gado | Rp 20.000 |
+| Lumpia | Rp 15.000 |
+| Tahu Goreng | Rp 12.000 |
+| Es Teh Manis | Rp 8.000 |
+| Kopi | Rp 10.000 |
 
-## 🔧 Customization
+---
 
-### Tambah Menu Baru
-Edit `MENU` di `backend.py`:
+## 🧠 Konsep Antrian (Queue)
+
+Sistem ini menggunakan struktur data **Queue FIFO murni**:
+
+| Operasi | Method | Keterangan |
+|---------|--------|------------|
+| **Enqueue** | `q.enqueue(meja, items)` | Tambah order ke **belakang** antrian |
+| **Dequeue** | `q.dequeue()` | Ambil & hapus order dari **depan** antrian |
+| Lihat semua | `q.get_all()` | Tampilkan seluruh isi antrian |
+| Update status | `q.update_status(id, status)` | Ubah status order |
+
+### Contoh penggunaan backend langsung:
 ```python
-MENU = {
-    "Nasi Goreng": 35000,
-    "Menu Baru": 50000,  # Tambah baris ini
-    ...
-}
+from backend import OrderQueue
+
+q = OrderQueue()
+
+# Enqueue
+q.enqueue("A1", [("Nasi Goreng", 2), ("Kopi", 1)])
+q.enqueue("B3", [("Mie Goreng", 1)])
+
+# Dequeue (ambil order paling depan)
+order = q.dequeue()
+print(order.meja)   # A1
 ```
 
-### Ubah Nama Restoran
-Edit title di `app.py`:
-```python
-st.title("🍽️ Nama Restoran Anda")
-```
+---
 
-### Ubah Warna & Style
-Edit CSS di `app.py` bagian `st.markdown("""<style>...`
+## 💾 Penyimpanan Data
 
-## 📈 Backend Explanation
+Semua pesanan disimpan otomatis ke `orders.json` setiap ada perubahan. File ini akan dibuat otomatis saat pertama kali ada pesanan masuk.
 
-### Class `MenuItem`
-- Menyimpan nama menu, harga, & qty
-- Method `total_harga()` = harga × qty
-
-### Class `Order`
-- Menyimpan data pesanan lengkap
-- Status: pending → sedang_masak → siap → selesai
-- Method `total_harga()` = sum semua items
-- Auto timestamp untuk created_at & waktu_selesai
-
-### Class `OrderQueue`
-- Main manager untuk semua pesanan
-- `add_order()` - Tambah pesanan baru
-- `update_status()` - Update status pesanan
-- `get_*_orders()` - Filter pesanan per status
-- `get_stats()` - Hitung statistik
-- `_save_orders()` & `_load_orders()` - Manage JSON storage
-
-## 💾 Data Storage
-
-Semua pesanan disimpan di `orders.json`. Format:
+Contoh isi `orders.json`:
 ```json
 [
   {
     "id": 1,
-    "nomor_meja": "A1",
+    "meja": "A1",
     "items": [
-      {"nama": "Nasi Goreng", "harga": 35000, "qty": 1}
+      {"nama": "Nasi Goreng", "harga": 35000, "qty": 2}
     ],
-    "status": "siap",
-    "created_at": "14:30:00",
-    "waktu_selesai": "14:45:00",
-    "catatan": "Tidak pedas"
+    "status": "diproses",
+    "waktu": "10:30:00"
   }
 ]
 ```
 
-## 🌐 Deploy ke Cloud
+---
 
-Bisa di-deploy gratis ke **Streamlit Cloud**:
-1. Push code ke GitHub
-2. Pergi ke https://share.streamlit.io
-3. Connect GitHub repo
-4. Deploy!
+## 🗂️ Penjelasan Kode
 
-## 📝 Tips & Tricks
+### `backend.py`
+- **`MenuItem`** — dataclass untuk satu item menu (nama, harga, qty)
+- **`Order`** — dataclass untuk satu pesanan (id, meja, items, status, waktu)
+- **`OrderQueue`** — class utama pengelola antrian
 
-- **Balloons Effect**: Muncul otomatis ketika pesanan siap 🎉
-- **Real-time Update**: Refresh otomatis ketika ada perubahan status
-- **Filter**: Tab "Semua Pesanan" bisa difilter per status
-- **Mobile Friendly**: Responsif di semua ukuran layar
-
-## 🆘 Troubleshooting
-
-**Port 8501 sudah terpakai?**
-```bash
-streamlit run app.py --server.port 8502
-```
-
-**Data hilang setelah refresh?**
-Pastikan ada file `orders.json` di folder yang sama dengan app.py
-
-**Nomor meja tidak bisa input?**
-Pastikan Streamlit versi terbaru: `pip install --upgrade streamlit`
-
-## 📞 Support
-
-Jika ada error atau pertanyaan, cek:
-1. Semua file di folder yang sama
-2. Python versi 3.8+
-3. Streamlit versi terbaru
+### `app.py`
+- **Sidebar** — Form input pesanan baru (enqueue)
+- **Main area** — Tampilan antrian dengan tombol aksi per order
 
 ---
 
-**Happy Serving! 🍽️✨**
+## 📦 Requirements
 
-Dibuat dengan ❤️ menggunakan Streamlit
+```
+streamlit>=1.28.0
+python>=3.8
+```
