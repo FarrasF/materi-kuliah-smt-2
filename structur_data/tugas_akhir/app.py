@@ -36,30 +36,32 @@ orders = q.get_all()
 if not orders:
     st.info("Antrian kosong.")
 else:
-    for order in orders:
-        with st.container(border=True):
-            c1, c2, c3 = st.columns([2, 3, 2])
+    for idx, order in enumerate(orders): # Tambahin idx di sini pakai enumerate
+        with st.container(border=True): 
+            c1, c2, c3 = st.columns([2, 3, 2]) 
 
             with c1:
-                badge = {"antri": "🔴 Antri", "diproses": "🔥 Diproses", "selesai": "✅ Selesai"}
-                st.markdown(f"### Meja {order.meja}  `#{order.id}`")
-                st.write(badge[order.status], "·", order.waktu)
+                badge = {"antri": "🔴 Antri", "diproses": "🔥 Diproses", "selesai": "✅ Selesai"} 
+                st.markdown(f"### Meja {order.meja}  `#{order.id}`") 
+                st.write(badge[order.status], "·", order.waktu) 
 
             with c2:
-                for item in order.items:
+                for item in order.items: 
                     st.write(f"- {item.nama} x{item.qty} = Rp{item.total():,}")
                 st.markdown(f"**Total: Rp{order.total():,}**")
 
             with c3:
-                if order.status == "antri":
-                    if st.button("🔥 Proses", key=f"p{order.id}", use_container_width=True):
-                        q.update_status(order.id, "diproses")
-                        st.rerun()
+                # `if idx == 0:` supaya tombol cuma muncul di antrian paling atas
+                if idx == 0:
+                    if order.status == "antri": 
+                        if st.button("🔥 Proses", key=f"p{order.id}", use_container_width=True): 
+                            q.update_status(order.id, "diproses") 
+                            st.rerun()
 
-                if order.status == "diproses":
-                    if st.button("✅ Selesai", key=f"s{order.id}", use_container_width=True, type="primary"):
-                        q.dequeue()  # langsung dequeue otomatis
-                        st.success(f"Meja {order.meja} selesai & dibuang dari antrian!")
-                        st.rerun()
+                    if order.status == "diproses": 
+                        if st.button("✅ Selesai", key=f"s{order.id}", use_container_width=True, type="primary"):
+                            q.dequeue()  
+                            st.success(f"Meja {order.meja} selesai & dibuang dari antrian!")
+                            st.rerun()
 
 
